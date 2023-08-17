@@ -1,13 +1,14 @@
 from typing import Iterable
 from django.db import models
 import hashlib
+from app import settings
 
-class User(models.Model):
-    email = models.CharField(max_length=30)
-    password = models.CharField(max_length=30)
-    token = password = models.CharField(max_length=30)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
+class CustomUser(models.Model):
+    email = models.CharField()
+    password = models.CharField()
+    token = password = models.CharField()
+    first_name = models.CharField()
+    last_name = models.CharField()
 
     algorithm = 'SHA256'
 
@@ -19,7 +20,7 @@ class User(models.Model):
     ## Pepper is a constant secret used together with salt to add
     ## more uniqueness to the password before hashing
     def get_pepper(self):
-        return 
+        return settings.PEPPER
 
     ## Generates a salt to append to the password before hashing
     ## Salt is a randomly generated string used together with pepper to add
