@@ -4,11 +4,11 @@ import hashlib
 from app import settings
 
 class CustomUser(models.Model):
-    email = models.CharField()
-    password = models.CharField()
-    token = password = models.CharField()
-    first_name = models.CharField()
-    last_name = models.CharField()
+    email = models.TextField()
+    password = models.TextField()
+    token = models.TextField()
+    first_name = models.TextField()
+    last_name = models.TextField()
 
     algorithm = 'SHA256'
 
