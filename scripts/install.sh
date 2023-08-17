@@ -21,7 +21,7 @@ echo "Createing venv at $PYTHON_VENV_PATH"
 python3.11 -m venv $PYTHON_VENV_PATH &> /dev/null
 
 echo "Sourcing venv"
-source "$PYTHON_VENV_PATH/bin/activate"
+source ./activate.sh
 
 echo "Installing pip requirements"
 
