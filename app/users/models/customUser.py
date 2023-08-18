@@ -10,11 +10,14 @@ class CustomUser(models.Model):
     email = models.TextField()
     password = models.TextField()
     token = models.TextField()
+    token_last_used = models.DateTimeField(auto_now_add=True)
     first_name = models.TextField()
     last_name = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    last_logged_in = models.DateTimeField(auto_now_add=True)
 
+    token_life = 1000 ## TODO make this a timeDelta
     algorithm = 'SHA256'
 
     ## Override save function of Django to always ensure the password in correctly formated
