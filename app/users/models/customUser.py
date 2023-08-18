@@ -4,7 +4,7 @@ import hashlib
 from app import settings
 import random
 
-from .errors.authErrors import InvalidPasswordError
+from ..errors.authErrors import InvalidPasswordError
 
 class CustomUser(models.Model):
     email = models.TextField()
@@ -12,6 +12,8 @@ class CustomUser(models.Model):
     token = models.TextField()
     first_name = models.TextField()
     last_name = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     algorithm = 'SHA256'
 
