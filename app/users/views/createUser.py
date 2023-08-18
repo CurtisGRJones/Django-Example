@@ -31,11 +31,8 @@ class CreateUserViewSet(
         headers = self.get_success_headers(serializer.data)
         
         user = CustomUser.objects.get(email=serializer.validated_data['email'])
-        # TODO create and save token here
-        token = 'asdf'
 
-        user.set_token(token)
-        user.save()
+        token = user.set_token(token)
 
         return Response({
             'success': True,

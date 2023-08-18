@@ -87,9 +87,21 @@ class CustomUser(models.Model):
             raise InvalidPasswordError('Invalid Password')
         return True
     
-    def set_token(self, token):
-        # TODO secure this
-        self.token = token
+    def generate_token(self):
+        return self.generate_salt()
+    
+    def pepper_token(self, token):
+        return f'{token}{self.get_pepper()}'
 
-    def validate_toeken(self, attempoted_token):
+    def format_token(self, token):
+        return f'{self.algorithm}${hashlib.sha256(self.pepper_token(token).encode("utf-8")).hexdigest()}'
+
+    def set_token(self, token=None):
+        if token == None:
+            token = self.generate_token()
+        self.token = self.format_token(token)  
+        self.save(update_fields=["token"])
+        return token
+
+    def validate_toeken(self, attempted_token):
         return
