@@ -2,6 +2,7 @@ from typing import Iterable
 from django.db import models
 import hashlib
 from app import settings
+import random
 
 class CustomUser(models.Model):
     email = models.TextField()
@@ -13,7 +14,15 @@ class CustomUser(models.Model):
     algorithm = 'SHA256'
 
     ## Override save function of Django to always ensure the password in correctly formated
-    def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
+    def save(self, force_insert: bool = False, force_update: bool = False, using: str | None = None, update_fields: Iterable[str] | None = None) -> None:
+        print(force_insert)
+        print(force_update)
+        print(using)
+        print(update_fields)
+        print(self.password)
+        if ( force_insert ):
+            self.save_password()
+            ## TODO add token
         return super().save(force_insert, force_update, using, update_fields)
 
     ## Gets the pepper to append to the password before hashing
@@ -26,7 +35,11 @@ class CustomUser(models.Model):
     ## Salt is a randomly generated string used together with pepper to add
     ## more uniqueness to the password before hashing
     def generate_salt(self):
-        return
+        ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        chars=[]
+        for _ in range(256):
+            chars.append(random.choice(ALPHABET))
+        return ''.join(chars)
 
     ## Salt and pepper the password to be used before hashing
     def salt_and_pepper_password(self, password, salt=None):
@@ -37,7 +50,7 @@ class CustomUser(models.Model):
 
     ## Salt, pepper, and hash the password
     def hash_password(self, password, salt=None):
-        return hashlib.sha256(self.salt_and_pepper_password(password, salt))
+        return hashlib.sha256(self.salt_and_pepper_password(password, salt).encode('utf-8')).hexdigest()
 
     def format_password(self, algorithm, hashed_password, salt,):
         return f"{algorithm}${hashed_password}${salt}"
