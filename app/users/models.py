@@ -4,6 +4,8 @@ import hashlib
 from app import settings
 import random
 
+from .errors.authErrors import InvalidPasswordError
+
 class CustomUser(models.Model):
     email = models.TextField()
     password = models.TextField()
@@ -15,11 +17,6 @@ class CustomUser(models.Model):
 
     ## Override save function of Django to always ensure the password in correctly formated
     def save(self, force_insert: bool = False, force_update: bool = False, using: str | None = None, update_fields: Iterable[str] | None = None) -> None:
-        print(force_insert)
-        print(force_update)
-        print(using)
-        print(update_fields)
-        print(self.password)
         if ( force_insert ):
             self.save_password()
             ## TODO add token
@@ -81,4 +78,18 @@ class CustomUser(models.Model):
         }
 
     def validate_password(self, attempted_password):
+        password_info = self.parse_password()
+        ## TODO add algorithm verification
+        if password_info['hashed_password'] != self.hash_password(
+                attempted_password,
+                password_info['salt']
+            ):
+            raise InvalidPasswordError('Invalid Password')
+        return True
+    
+    def set_token(self, token):
+        # TODO secure this
+        self.token = token
+
+    def validate_toeken(self, attempoted_token):
         return

@@ -34,11 +34,12 @@ class CreateUserViewSet(
         # TODO create and save token here
         token = 'asdf'
 
+        user.set_token(token)
+        user.save()
+
         return Response({
             'success': True,
             'data': {
-                'first_name': user.first_name,
-                'last_name': user.last_name,
                 'token': token
             }
         }, status=status.HTTP_201_CREATED, headers=headers)

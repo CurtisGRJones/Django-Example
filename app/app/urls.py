@@ -18,9 +18,9 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include, re_path
 from rest_framework.routers import DefaultRouter
-from users.views import router as userRouter
+from users.views import urls as userUrls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    re_path('user/', include(userRouter.urls)),
+    re_path('user/', include(userUrls)),
 ]
