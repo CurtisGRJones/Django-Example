@@ -32,7 +32,7 @@ class CreateUserViewSet(
         
         user = CustomUser.objects.get(email=serializer.validated_data['email'])
 
-        token = user.set_token(token)
+        token = user.set_token()
 
         return Response({
             'success': True,
