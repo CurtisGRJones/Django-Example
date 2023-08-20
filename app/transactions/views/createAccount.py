@@ -33,7 +33,8 @@ def create_account(request: HttpRequest):
     return success_response({
         'account': {
             'number': account.number,
-            'pin': account.pin
+            'pin': account.pin,
+            'balance': account.balance
         },
         'transaction': {
             'id': transaction.pk
