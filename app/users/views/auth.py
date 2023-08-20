@@ -1,6 +1,8 @@
 import json
 from django.http import HttpRequest, JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
 
+from ..utils.responses import fail_response, success_response
+
 from ..errors.authErrors import InvalidPasswordError
 
 from ..models import CustomUser, LoginAttempt
@@ -10,7 +12,7 @@ def auth_user(request: HttpRequest):
     ## TODO protect this against timing attacks
     headers = request.headers
     if headers['Content-Type'] != 'application/json':
-        return HttpResponseBadRequest('Request body must be JSON')
+        return fail_response('Request body must be JSON', status=400)
     data = json.loads(request.body)
 
     
@@ -18,7 +20,7 @@ def auth_user(request: HttpRequest):
         assert 'email' in data
         user = CustomUser.objects.get(email=data['email'])
     except (AssertionError, CustomUser.DoesNotExist):
-        return HttpResponseForbidden('Invalid credentials')
+        return fail_response('Invalid Credentials')
     
     attempt = LoginAttempt(
         user=user
@@ -30,15 +32,14 @@ def auth_user(request: HttpRequest):
     except (AssertionError, InvalidPasswordError):
         attempt.success = False
         attempt.save()
-        return HttpResponseForbidden('Invalid credentials')
+        return fail_response('Invalid Credentials')
     
     attempt.success = True
     attempt.save()
         
     token = user.set_token()
-    return JsonResponse({
-        "success": True,
-        "data": {
-            "token": token
-        }
-    })
+    response = success_response({ "token": token })
+
+    response.set_cookie('auth_token', token)
+
+    return response

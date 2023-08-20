@@ -4,6 +4,8 @@ from rest_framework.mixins import (
 )
 from rest_framework.viewsets import GenericViewSet
 
+from ..utils.responses import success_response
+
 from ..models import CustomUser
 from ..serializers import CustomUserSerializer
 
@@ -34,10 +36,17 @@ class CreateUserViewSet(
 
         token = user.set_token()
 
-        return Response({
+
+        response = success_response({"token": token}, status=status.HTTP_201_CREATED, headers=headers)
+
+        response = Response({
             'success': True,
             'data': {
                 'token': token
             }
         }, status=status.HTTP_201_CREATED, headers=headers)
+
+        response.set_cookie('auth_token', token)
+
+        return response
 

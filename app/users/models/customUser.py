@@ -30,13 +30,15 @@ class CustomUser(models.Model):
     ## Gets the pepper to append to the password before hashing
     ## Pepper is a constant secret used together with salt to add
     ## more uniqueness to the password before hashing
-    def get_pepper(self):
+    @staticmethod
+    def get_pepper():
         return settings.PEPPER
 
     ## Generates a salt to append to the password before hashing
     ## Salt is a randomly generated string used together with pepper to add
     ## more uniqueness to the password before hashing
-    def generate_salt(self):
+    @staticmethod
+    def generate_salt():
         ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
         chars=[]
         for _ in range(256):
@@ -44,35 +46,36 @@ class CustomUser(models.Model):
         return ''.join(chars)
 
     ## Salt and pepper the password to be used before hashing
-    def salt_and_pepper_password(self, password, salt=None):
+    @staticmethod
+    def salt_and_pepper_password(password, salt=None):
         if salt == None:
-            salt = self.generate_salt()
+            salt = CustomUser.generate_salt()
 
-        return f'{password}{salt}{self.get_pepper()}'
+        return f'{password}{salt}{CustomUser.get_pepper()}'
 
     ## Salt, pepper, and hash the password
-    def hash_password(self, password, salt=None):
-        return hashlib.sha256(self.salt_and_pepper_password(password, salt).encode('utf-8')).hexdigest()
+    @staticmethod
+    def hash_password(password, salt=None):
+        return hashlib.sha256(CustomUser.salt_and_pepper_password(password, salt).encode('utf-8')).hexdigest()
 
-    def format_password(self, algorithm, hashed_password, salt,):
+    @staticmethod
+    def format_password(algorithm, hashed_password, salt,):
         return f"{algorithm}${hashed_password}${salt}"
+    
+    
+    
+    @staticmethod
+    def generate_token():
+        return CustomUser.generate_salt()
+    
+    @staticmethod
+    def pepper_token(token):
+        return f'{token}{CustomUser.get_pepper()}'
 
-    ## Secure and sabve the password
-    def save_password(self, password=None):
-        if password == None:
-            password = self.password
-        
-        salt = self.generate_salt()
-
-        self.password = self.format_password(
-            self.algorithm,
-            self.hash_password(
-                password,
-                salt
-            ),
-            salt
-        )
-
+    @staticmethod
+    def format_token(token):
+        return f'{CustomUser.algorithm}${hashlib.sha256(CustomUser.pepper_token(token).encode("utf-8")).hexdigest()}'
+    
     def parse_password(self):
         parts = self.password.split('$')
 
@@ -82,31 +85,49 @@ class CustomUser(models.Model):
             "salt": parts[2]
         }
 
+    ## Secure and save the password
+    def save_password(self, password=None):
+        if password == None:
+            password = self.password
+        
+        salt = CustomUser.generate_salt()
+
+        self.password = CustomUser.format_password(
+            CustomUser.algorithm,
+            CustomUser.hash_password(
+                password,
+                salt
+            ),
+            salt
+        )
+
+
     def validate_password(self, attempted_password):
         password_info = self.parse_password()
         ## TODO add algorithm verification
-        if password_info['hashed_password'] != self.hash_password(
+        if password_info['hashed_password'] != CustomUser.hash_password(
                 attempted_password,
                 password_info['salt']
             ):
             raise InvalidPasswordError('Invalid Password')
         return True
-    
-    def generate_token(self):
-        return self.generate_salt()
-    
-    def pepper_token(self, token):
-        return f'{token}{self.get_pepper()}'
 
-    def format_token(self, token):
-        return f'{self.algorithm}${hashlib.sha256(self.pepper_token(token).encode("utf-8")).hexdigest()}'
 
     def set_token(self, token=None):
         if token == None:
-            token = self.generate_token()
-        self.token = self.format_token(token)  
+            token = CustomUser.generate_token()
+        self.token = CustomUser.format_token(token)  
         self.save(update_fields=["token"])
         return token
-
-    def validate_toeken(self, attempted_token):
-        return
+    
+    @staticmethod
+    def get_user_from_token(token):
+        formated_token = CustomUser.format_token(token)
+        return CustomUser.objects.get(token = formated_token)
+    
+    def user_data(self):
+        return {
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email
+        }
