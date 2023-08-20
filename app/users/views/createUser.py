@@ -4,7 +4,7 @@ from rest_framework.mixins import (
 )
 from rest_framework.viewsets import GenericViewSet
 
-from ..utils.responses import success_response
+from utils.responses import success_response
 
 from ..models import CustomUser
 from ..serializers import CustomUserSerializer

@@ -1,9 +1,8 @@
 import json
-from django.http import HttpRequest, JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
+from django.http import HttpRequest
 
-from ..utils.responses import fail_response, success_response
-
-from ..errors.authErrors import InvalidPasswordError
+from utils.responses import fail_response, success_response
+from utils.errors import InvalidPasswordError
 
 from ..models import CustomUser, LoginAttempt
 
@@ -15,7 +14,6 @@ def auth_user(request: HttpRequest):
         return fail_response('Request body must be JSON', status=400)
     data = json.loads(request.body)
 
-    
     try:
         assert 'email' in data
         user = CustomUser.objects.get(email=data['email'])

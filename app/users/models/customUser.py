@@ -4,7 +4,7 @@ import hashlib
 from app import settings
 import random
 
-from ..errors.authErrors import InvalidPasswordError
+from utils.errors.authErrors import InvalidPasswordError
 
 class CustomUser(models.Model):
     email = models.TextField()
