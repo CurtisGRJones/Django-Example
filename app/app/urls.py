@@ -19,8 +19,10 @@ from django.urls import path
 from django.urls import include, re_path
 from rest_framework.routers import DefaultRouter
 from users.views import urls as userUrls
+from transactions.views import urls as transactionUrls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     re_path('user/', include(userUrls)),
+    re_path('transactions/', include(transactionUrls)),
 ]

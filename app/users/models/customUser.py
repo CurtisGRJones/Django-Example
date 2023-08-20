@@ -17,7 +17,9 @@ class CustomUser(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     last_logged_in = models.DateTimeField(auto_now_add=True)
 
-    token_life = 1000 ## TODO make this a timeDelta
+    deleted = models.BooleanField(default=False)
+    deleted_on = models.DateTimeField(null=True)
+    
     algorithm = 'SHA256'
 
     ## Override save function of Django to always ensure the password in correctly formated
